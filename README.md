@@ -1,8 +1,8 @@
 # ASCII Art Generator
 
-A minimalist ASCII art generator .
+Minimal ASCII art generator. Input text and get instant ASCII art renderings using ANSI Shadow and 325+ figlet fonts.
 
-Type text and instantly see it rendered as ASCII art using the ANSI Shadow font (and 325+ other figlet fonts).
+![Preview](src/assets/preview.gif)
 
 ## Getting Started
 
