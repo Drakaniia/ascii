@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import figlet from "figlet";
 import ColorPopover, { type ColorConfig } from "@/components/color-popover";
 import { exportSvg, exportPng } from "@/lib/export";
 
@@ -29,9 +30,10 @@ export default function Home() {
   textRef.current = text;
 
   useEffect(() => {
-    fetch("/api/fonts")
+    figlet.defaults({ fontPath: "/fonts/figlet/" });
+    fetch("/fonts/figlet/fonts.json")
       .then((res) => res.json())
-      .then((data) => setFonts(data.fonts))
+      .then((data) => setFonts(data))
       .catch(() => {});
   }, []);
 
@@ -43,15 +45,19 @@ export default function Home() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: value, font: selectedFont }),
-      });
-      const data = await res.json();
-      if (data.ascii) {
-        setAscii(data.ascii);
-      }
+      const lines = value.split("\n");
+      const results = await Promise.all(
+        lines.map((line) => {
+          if (!line.trim()) return Promise.resolve("");
+          return new Promise<string>((resolve, reject) => {
+            figlet.text(line, { font: selectedFont as figlet.Fonts }, (err, result) => {
+              if (err) reject(err);
+              else resolve(result || "");
+            });
+          });
+        }),
+      );
+      setAscii(results.join("\n\n"));
     } catch {
       setAscii("Error generating ASCII art");
     } finally {
